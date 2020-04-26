@@ -1,0 +1,11 @@
+#To set an interval for puppet agent to authomatically pull an update from master node
+
+#On Master node, edit puppet.conf file
+
+sudo vi etc/puppet/puppet.conf
+
+#add any desired time-interval (sec)
+
+runinterval=10
+
+#This will make all agent that are connected with the master to receive update every 10seconds.
