@@ -1,0 +1,60 @@
+#installation of Pupput on Ubuntu Master node
+# on Master:
+-sudo apt-get update
+-sudo apt-get install wget
+-wget https://apt.puppetlabs.com/puppet-release-bionic.deb
+#To unzip the file
+-sudo dpkg -i puppet-release-bionic.deb
+#install puppet master
+-sudo apt-get install puppetmaster
+#to check content of policy
+-apt policy puppetmaster
+#check status of puppet master service
+-sudo systemctl status puppet-master.service
+#to edit puppet_master memory
+-vi /etc/default/puppet-master
+  --JAVA_ARGS="-Xms512m -Xmx512m"
+
+#to restart puppet master
+-sudo systemctl restart puppet-master.service
+#open port to communicate with puppet_slave
+-sudo ufw allow 8140/tcp
+
+#ON SLAVE NODE:
+-sudo apt-get update
+-sudo apt-get install wget
+-wget https://apt.puppetlabs.com/puppet-release-bionic.deb
+#To unzip the file
+-sudo dpkg -i puppet-release-bionic.deb
+#install puppet agent
+-sudo apt-get install puppet
+
+#On both machines edit the host file and put the public IP address of the master
+-sudo vi /etc/hosts
+#to start puppet slave
+-sudo systemctl start puppet
+-sudo systemctl enable puppet
+#On master node, to view puppet-slave cert
+-sudo puppet cert list
+#to sign the certificate
+-sudo puppet cert sign --all
+
+#to edit manifest file on puppet master, this defines the requirements on puppet-slave
+# creat a manifest path
+-sudo mkdir -p /etc/puppet/code/environments/production/manifests/
+#edit manifest file on the master
+-sudo vi /etc/puppet/code/environments/production/manifests/site.pp
+#write manifest file here, for example:
+file {'/tmp/it_works.txt' :
+  ensure  => present,
+  mode    => '0644',
+  content => "This is my Ip address ${ipaddress_eth0}!\n",
+}
+#restart puppet master
+sudo systemctl restart puppet-master
+#ON SLAVE NODE, to request for new update
+sudo puppet-agent --test
+#verify the new update
+cd /tmp
+cat it_works.txt
+#You should be able to see the new update
